@@ -10,19 +10,24 @@ import {
   PerspectiveCamera,
   WebGLRenderer,
   DirectionalLight,
-  Color,
-  PointLight,
-  // MeshStandardMaterial,
-  CircleGeometry,
-  MeshBasicMaterial,
+  // Fog,
   PlaneGeometry,
-  MeshLambertMaterial,
+  // Color,
+  DoubleSide,
+  PointLight,
+  CircleGeometry,
+  HemisphereLight,
+  MeshBasicMaterial,
   Mesh,
+  // TextureLoader,
   Vector2,
   AmbientLight,
+  MeshStandardMaterial,
 } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+// import { GlitchPass } from 'three/examples/jsm/postprocessing/GlitchPass'
+
 import {
   GodRaysEffect,
   RenderPass,
@@ -49,12 +54,18 @@ export default {
       circleGeo: null,
       renderPass: null,
       effectPass: null,
+      glitchPass: null,
       composer: null,
       circleMat: null,
       circle: null,
       godraysEffect: null,
       areaImage: null,
       searchImage: null,
+      light1: null,
+      light2: null,
+      light3: null,
+      light4: null,
+      light5: null,
       smaaEffect: null,
       spotlight: null,
       windowHalf: null,
@@ -72,7 +83,11 @@ export default {
   mounted() {
     this.scene = new Scene()
     // eslint-disable-next-line unicorn/number-literal-case
-    this.scene.background = new Color(0x020202)
+    // const textureLoader = new TextureLoader()
+    // this.scene.background = textureLoader.load('./bg.png')
+
+    // eslint-disable-next-line unicorn/number-literal-case
+    // this.scene.fog = new Fog(0x000000, 0.5, -100)
 
     this.camera = new PerspectiveCamera(
       40,
@@ -82,8 +97,8 @@ export default {
     )
 
     this.camera.rotation.y = (45 / 180) * Math.PI
-    this.camera.position.x = 800
-    this.camera.position.y = 100
+    this.camera.position.x = 0
+    this.camera.position.y = 0
     this.camera.position.z = 1000
 
     this.renderer = new WebGLRenderer({
@@ -91,11 +106,9 @@ export default {
       canvas: this.$refs.canvas,
     })
 
-    this.renderer.setPixelRatio(
-      window.devicePixelRatio > 2 ? window.devicePixelRatio : 2
-    )
+    this.renderer.setPixelRatio(2)
 
-    console.log(this.renderer, window)
+    // console.log(this.renderer, window)
 
     this.addLights()
 
@@ -105,9 +118,11 @@ export default {
 
     this.createGeo()
 
+    this.createCube()
+
     this.godraysEffect = new GodRaysEffect(this.camera, this.circle, {
       resolutionScale: 1,
-      density: 0.8,
+      density: 0.98,
       decay: 0.95,
       weight: 0.9,
       samples: 100,
@@ -153,11 +168,17 @@ export default {
       this.target.x = (1 - this.mouse.x) * 0.002
       this.target.y = (1 - this.mouse.y) * 0.002
 
-      this.camera.rotation.x += 0.05 * (this.target.y - this.camera.rotation.x)
-      this.camera.rotation.y += 0.05 * (this.target.x - this.camera.rotation.y)
+      this.camera.rotation.x += 0.015 * (this.target.y - this.camera.rotation.x)
+      this.camera.rotation.y += 0.015 * (this.target.x - this.camera.rotation.y)
 
-      // this.renderer.render(this.scene, this.camera)
-      this.composer.render(0.1)
+      if (this.gltf) {
+        this.gltf.rotation.x = this.target.x * -0.05
+        // this.gltf.rotation.y = 5.5 + this.target.y * -0.05
+        this.gltf.position.x = -70
+      }
+
+      this.renderer.render(this.scene, this.camera)
+      // this.composer.render(0.1)
     },
 
     onResize() {
@@ -171,7 +192,7 @@ export default {
 
     addLights() {
       // eslint-disable-next-line unicorn/number-literal-case
-      const hlLight = new AmbientLight(0x404040, 100)
+      const hlLight = new AmbientLight(0xffffff, 100)
       this.scene.add(hlLight)
 
       // eslint-disable-next-line unicorn/number-literal-case
@@ -181,24 +202,29 @@ export default {
       this.scene.add(directionalLight)
 
       // eslint-disable-next-line unicorn/number-literal-case
-      const light = new PointLight(0xc4c4c4, 10)
-      light.position.set(0, 300, 500)
-      this.scene.add(light)
+      this.light = new PointLight(0xffffff, 15)
+      this.light.position.set(0, 300, 500)
+      this.scene.add(this.light)
 
       // eslint-disable-next-line unicorn/number-literal-case
-      const light2 = new PointLight(0xc4c4c4, 10)
-      light2.position.set(500, 100, 0)
-      this.scene.add(light2)
+      this.light2 = new PointLight(0xffffff, 15)
+      this.light2.position.set(500, 100, 0)
+      this.scene.add(this.light2)
 
       // eslint-disable-next-line unicorn/number-literal-case
-      const light3 = new PointLight(0xc4c4c4, 10)
-      light3.position.set(0, 100, -500)
-      this.scene.add(light3)
+      this.light3 = new PointLight(0x000000, 20)
+      this.light3.position.set(0, 100, -500)
+      this.scene.add(this.light3)
 
       // eslint-disable-next-line unicorn/number-literal-case
-      const light4 = new PointLight(0xc4c4c4, 10)
-      light4.position.set(-500, 300, 500)
-      this.scene.add(light4)
+      this.light4 = new PointLight(0xffffff, 20)
+      this.light4.position.set(-500, 300, 500)
+      this.scene.add(this.light4)
+
+      // eslint-disable-next-line unicorn/number-literal-case
+      this.light5 = new HemisphereLight(0xffffff, 0xffffff, 0)
+      this.light5.castShadow = true
+      this.scene.add(this.light5)
     },
 
     addControls() {
@@ -209,69 +235,55 @@ export default {
     },
 
     createGeo() {
-      this.circleGeo = new CircleGeometry(220, 50)
+      this.circleGeo = new CircleGeometry(100, 100)
       // eslint-disable-next-line unicorn/number-literal-case
-      this.circleMat = new MeshBasicMaterial({ color: 0xffccaa })
+      this.circleMat = new MeshBasicMaterial({ color: 0xffffff })
+      // this.circleMat.visible = false
       this.circle = new Mesh(this.circleGeo, this.circleMat)
 
-      this.circle.position.set(-100, 100, -500)
-      this.circle.scale.setX(1.2)
+      this.circle.position.set(0, 100, 1000)
       this.scene.add(this.circle)
     },
 
     createCube() {
-      // Plane Properties
-      const planeWidth = 10
-      const planeHeight = 10
-      const planeWidthSegs = 1
-      const planeHeightSegs = 1
-      // eslint-disable-next-line unicorn/number-literal-case
-      const planeColor = 0xffff00
-      const planePosition = { x: 0, y: 0, z: -5 }
-
-      const planeGeometry = new PlaneGeometry(
-        planeWidth,
-        planeHeight,
-        planeWidthSegs,
-        planeHeightSegs
-      )
-      const planeMaterial = new MeshLambertMaterial({ color: planeColor })
-      const planeMesh = new Mesh(planeGeometry, planeMaterial)
-      planeMesh.position.set(planePosition.x, planePosition.y, planePosition.z)
-      planeMesh.receiveShadow = true
-      planeMesh.castShadow = false
-      planeMesh.rotation.x = -0.6
-      this.scene.add(planeMesh)
-
-      // this.cube.position.z = -5
-      // this.cube.rotation.x = 0.5
-      // this.cube.rotation.y = 5
+      const geometry = new PlaneGeometry(500, 500, 0)
+      const material = new MeshBasicMaterial({
+        // eslint-disable-next-line unicorn/number-literal-case
+        color: 0xffff00,
+        side: DoubleSide,
+      })
+      const plane = new Mesh(geometry, material)
+      plane.receiveShadow = true
+      this.scene.add(plane)
     },
 
     createLoader() {
       this.loader = new GLTFLoader()
 
-      this.loader.load('./logo-test.glb', (gltf) => {
+      this.loader.load('./logo-test4.glb', (gltf) => {
         this.gltf = gltf.scene
         this.gltf.scale.set(100, 100, 100)
 
         //
-        // this.gltf.position.z = 4
-        this.gltf.rotation.x = 1
+        // this.gltf.rotation.y = -0.5
+        // this.gltf.rotation.y = -0.1
+        // this.gltf.rotation.x = 1.1
+        // this.gltf.rotation.y = 1.1
         // this.gltf.rotation.x = 1
         // this.gltf.position.x = -0.5
         // this.gltf.position.y = 0
         // this.gltf.position.z = 1
 
-        // // eslint-disable-next-line unicorn/number-literal-case
-        // const newMaterial = new MeshStandardMaterial({ color: 0xff0000 })
+        // eslint-disable-next-line unicorn/number-literal-case
+        const newMaterial = new MeshStandardMaterial({ color: 0x000000 })
+        newMaterial.metalness = 0.8
 
-        // this.gltf.traverse((o) => {
-        //   if (o.isMesh) o.material = newMaterial
-        // })
+        this.gltf.traverse((o) => {
+          if (o.isMesh) o.material = newMaterial
+        })
 
-        // this.gltf.castShadow = true
-        // this.gltf.receiveShadow = true
+        this.gltf.castShadow = true
+        this.gltf.receiveShadow = true
 
         this.scene.add(this.gltf)
       })
@@ -290,7 +302,8 @@ export default {
 }
 
 .logo canvas {
-  width: 100%;
-  height: 100%;
+  display: block;
+  /* width: 100%;
+  height: 100%; */
 }
 </style>
