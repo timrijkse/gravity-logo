@@ -10,7 +10,6 @@ import {
   PerspectiveCamera,
   WebGLRenderer,
   DirectionalLight,
-  // Fog,
   PlaneGeometry,
   // Color,
   DoubleSide,
@@ -19,13 +18,14 @@ import {
   HemisphereLight,
   MeshBasicMaterial,
   Mesh,
-  // TextureLoader,
+  TextureLoader,
   Vector2,
   AmbientLight,
   MeshStandardMaterial,
 } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { TweenMax } from 'gsap'
 // import { GlitchPass } from 'three/examples/jsm/postprocessing/GlitchPass'
 
 import {
@@ -83,11 +83,8 @@ export default {
   mounted() {
     this.scene = new Scene()
     // eslint-disable-next-line unicorn/number-literal-case
-    // const textureLoader = new TextureLoader()
-    // this.scene.background = textureLoader.load('./bg.png')
-
-    // eslint-disable-next-line unicorn/number-literal-case
-    // this.scene.fog = new Fog(0x000000, 0.5, -100)
+    const textureLoader = new TextureLoader()
+    this.scene.background = textureLoader.load('./bg.png')
 
     this.camera = new PerspectiveCamera(
       40,
@@ -165,15 +162,15 @@ export default {
         this.camera.lookAt(this.scene.position)
       }
 
-      this.target.x = (1 - this.mouse.x) * 0.002
-      this.target.y = (1 - this.mouse.y) * 0.002
+      this.target.x = (1 - this.mouse.x) * -0.004
+      this.target.y = (1 - this.mouse.y) * -0.004
 
-      this.camera.rotation.x += 0.015 * (this.target.y - this.camera.rotation.x)
-      this.camera.rotation.y += 0.015 * (this.target.x - this.camera.rotation.y)
+      // this.camera.rotation.x += 0.015 * (this.target.y - this.camera.rotation.x)
+      // this.camera.rotation.y += 0.015 * (this.target.x - this.camera.rotation.y)
 
       if (this.gltf) {
         this.gltf.rotation.x = this.target.x * -0.05
-        // this.gltf.rotation.y = 5.5 + this.target.y * -0.05
+        this.gltf.rotation.y = this.target.y * -0.05
         this.gltf.position.x = -70
       }
 
@@ -192,11 +189,11 @@ export default {
 
     addLights() {
       // eslint-disable-next-line unicorn/number-literal-case
-      const hlLight = new AmbientLight(0xffffff, 100)
+      const hlLight = new AmbientLight(0x040404, 100)
       this.scene.add(hlLight)
 
       // eslint-disable-next-line unicorn/number-literal-case
-      const directionalLight = new DirectionalLight(0xffffff, 100)
+      const directionalLight = new DirectionalLight(0x040404, 100)
       directionalLight.position.set(0, 1, 0)
       directionalLight.castShadow = true
       this.scene.add(directionalLight)
@@ -212,7 +209,7 @@ export default {
       this.scene.add(this.light2)
 
       // eslint-disable-next-line unicorn/number-literal-case
-      this.light3 = new PointLight(0x000000, 20)
+      this.light3 = new PointLight(0xffffff, 5)
       this.light3.position.set(0, 100, -500)
       this.scene.add(this.light3)
 
@@ -237,11 +234,11 @@ export default {
     createGeo() {
       this.circleGeo = new CircleGeometry(100, 100)
       // eslint-disable-next-line unicorn/number-literal-case
-      this.circleMat = new MeshBasicMaterial({ color: 0xffffff })
+      this.circleMat = new MeshBasicMaterial({ color: 0xff0000 })
       // this.circleMat.visible = false
       this.circle = new Mesh(this.circleGeo, this.circleMat)
 
-      this.circle.position.set(0, 100, 1000)
+      this.circle.position.set(0, 0, 1000)
       this.scene.add(this.circle)
     },
 
@@ -262,7 +259,7 @@ export default {
 
       this.loader.load('./logo-test4.glb', (gltf) => {
         this.gltf = gltf.scene
-        this.gltf.scale.set(100, 100, 100)
+        this.gltf.scale.set(80, 80, 80)
 
         //
         // this.gltf.rotation.y = -0.5
@@ -276,7 +273,7 @@ export default {
 
         // eslint-disable-next-line unicorn/number-literal-case
         const newMaterial = new MeshStandardMaterial({ color: 0x000000 })
-        newMaterial.metalness = 0.8
+        newMaterial.metalness = 1
 
         this.gltf.traverse((o) => {
           if (o.isMesh) o.material = newMaterial
@@ -284,6 +281,23 @@ export default {
 
         this.gltf.castShadow = true
         this.gltf.receiveShadow = true
+
+        const bla2 = { x: -0.3, y: 0.1, scale: 50 }
+        const bla = { x: -0.1, y: 0, scale: 80 }
+
+        TweenMax.from(bla, 6, {
+          ...bla2,
+          // repeat: -1,
+          // yoyo: true,
+          onUpdate: (tween) => {
+            if (this.gltf) {
+              this.gltf.rotation.x = bla.x
+              this.gltf.rotation.y = bla.y
+              this.gltf.scale.x = bla.scale
+              this.gltf.scale.y = bla.scale
+            }
+          },
+        })
 
         this.scene.add(this.gltf)
       })
