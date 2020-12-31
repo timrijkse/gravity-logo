@@ -11,11 +11,11 @@ import {
   WebGLRenderer,
   DirectionalLight,
   PlaneGeometry,
-  // Color,
   DoubleSide,
   PointLight,
   CircleGeometry,
   HemisphereLight,
+  Clock,
   MeshBasicMaterial,
   Mesh,
   TextureLoader,
@@ -25,20 +25,12 @@ import {
 } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
+import { GlitchPass } from 'three/examples/jsm/postprocessing/GlitchPass'
 import { TweenMax } from 'gsap'
-// import { GlitchPass } from 'three/examples/jsm/postprocessing/GlitchPass'
 
-import {
-  GodRaysEffect,
-  RenderPass,
-  EffectPass,
-  EffectComposer,
-  SMAAEffect,
-} from 'postprocessing'
-
-// const m = { x: 0, y: 0 }
-// const pos = { x: 0, y: 0 }
-// const lightZoom = 10
+import { NoiseEffect, EffectPass, SMAAEffect } from 'postprocessing'
 
 export default {
   data() {
@@ -52,6 +44,7 @@ export default {
       controls: null,
       loader: null,
       circleGeo: null,
+      clock: null,
       renderPass: null,
       effectPass: null,
       glitchPass: null,
@@ -69,6 +62,7 @@ export default {
       smaaEffect: null,
       spotlight: null,
       windowHalf: null,
+      assets: [],
       target: {
         x: 0,
         y: 0,
@@ -98,6 +92,8 @@ export default {
     this.camera.position.y = 0
     this.camera.position.z = 1000
 
+    this.clock = new Clock()
+
     this.renderer = new WebGLRenderer({
       antialias: true,
       canvas: this.$refs.canvas,
@@ -117,32 +113,31 @@ export default {
 
     this.createCube()
 
-    this.godraysEffect = new GodRaysEffect(this.camera, this.circle, {
-      resolutionScale: 1,
-      density: 0.98,
-      decay: 0.95,
-      weight: 0.9,
-      samples: 100,
-    })
+    const glitchEffect = new NoiseEffect({ premultiply: true })
+
+    const glitchPass = new GlitchPass(64)
 
     this.renderPass = new RenderPass(this.scene, this.camera)
-    this.effectPass = new EffectPass(this.camera, this.godraysEffect)
-    this.effectPass.renderToScreen = true
 
     this.areaImage = new Image()
     this.areaImage.src = SMAAEffect.areaImageDataURL
     this.searchImage = new Image()
     this.searchImage.src = SMAAEffect.searchImageDataURL
     this.smaaEffect = new SMAAEffect(this.searchImage, this.areaImage, 1)
-    this.effectPass = new EffectPass(
-      this.camera,
-      this.smaaEffect,
-      this.godraysEffect
-    )
+
+    this.effectPass = new EffectPass(this.camera, glitchEffect)
+    this.effectPass.renderToScreen = true
 
     this.composer = new EffectComposer(this.renderer)
+
+    glitchPass.renderToScreen = false
+    glitchPass.goWild = false
+
     this.composer.addPass(this.renderPass)
-    this.composer.addPass(this.effectPass)
+
+    // this.composer.addPass(this.effectPass)
+    this.composer.addPass(glitchPass)
+    // this.composer.addPass(eff)
 
     this.onResize()
     this.render()
@@ -162,20 +157,21 @@ export default {
         this.camera.lookAt(this.scene.position)
       }
 
-      this.target.x = (1 - this.mouse.x) * -0.004
-      this.target.y = (1 - this.mouse.y) * -0.004
+      this.target.x = (1 - this.mouse.x) * -0.04
+      this.target.y = (1 - this.mouse.y) * -0.04
 
-      // this.camera.rotation.x += 0.015 * (this.target.y - this.camera.rotation.x)
-      // this.camera.rotation.y += 0.015 * (this.target.x - this.camera.rotation.y)
+      // this.camera.rotation.x += 0.045 * (this.target.x - this.camera.rotation.x)
+      // this.camera.rotation.y += 0.045 * (this.target.y - this.camera.rotation.y)
 
       if (this.gltf) {
-        this.gltf.rotation.x = this.target.x * -0.05
-        this.gltf.rotation.y = this.target.y * -0.05
+        this.gltf.rotation.x = this.target.x * 0.045
+        this.gltf.rotation.y = this.target.y * 0.045
         this.gltf.position.x = -70
       }
 
-      this.renderer.render(this.scene, this.camera)
-      // this.composer.render(0.1)
+      // this.renderer.render(this.scene, this.camera)
+      const delta = this.clock.getDelta()
+      this.composer.render(delta)
     },
 
     onResize() {
@@ -183,8 +179,15 @@ export default {
     },
 
     onMouseMove(event) {
-      this.mouse.x = event.clientX - this.windowHalf.x
-      this.mouse.y = event.clientY - this.windowHalf.x
+      const mouse = { ...this.mouse }
+      TweenMax.to(mouse, 3, {
+        x: event.clientX - this.windowHalf.x,
+        y: event.clientY - this.windowHalf.y,
+        onUpdate: (tween) => {
+          this.mouse.x = mouse.x
+          this.mouse.y = mouse.y
+        },
+      })
     },
 
     addLights() {
@@ -272,7 +275,7 @@ export default {
         // this.gltf.position.z = 1
 
         // eslint-disable-next-line unicorn/number-literal-case
-        const newMaterial = new MeshStandardMaterial({ color: 0x000000 })
+        const newMaterial = new MeshStandardMaterial({ color: 0x030303 })
         newMaterial.metalness = 1
 
         this.gltf.traverse((o) => {
