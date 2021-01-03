@@ -1,5 +1,5 @@
 <template>
-  <div class="logo">
+  <div class="logo" @mousedown="enableGlitch" @mouseup="disableGlitch">
     <canvas ref="canvas" />
   </div>
 </template>
@@ -18,13 +18,17 @@ import {
   Clock,
   MeshBasicMaterial,
   Mesh,
-  TextureLoader,
+  // TextureLoader,
   Vector2,
   AmbientLight,
   MeshStandardMaterial,
+  Geometry,
+  ParticleBasicMaterial,
+  Vertex,
+  Vector3,
+  ParticleSystem,
 } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
 import { GlitchPass } from 'three/examples/jsm/postprocessing/GlitchPass'
@@ -77,8 +81,8 @@ export default {
   mounted() {
     this.scene = new Scene()
     // eslint-disable-next-line unicorn/number-literal-case
-    const textureLoader = new TextureLoader()
-    this.scene.background = textureLoader.load('./bg.png')
+    // const textureLoader = new TextureLoader()
+    // this.scene.background = textureLoader.load('./bg.png')
 
     this.camera = new PerspectiveCamera(
       40,
@@ -87,7 +91,7 @@ export default {
       5000
     )
 
-    this.camera.rotation.y = (45 / 180) * Math.PI
+    // this.camera.rotation.y = (45 / 180) * Math.PI
     this.camera.position.x = 0
     this.camera.position.y = 0
     this.camera.position.z = 1000
@@ -113,9 +117,9 @@ export default {
 
     this.createCube()
 
-    const glitchEffect = new NoiseEffect({ premultiply: true })
+    this.glitchEffect = new NoiseEffect()
 
-    const glitchPass = new GlitchPass(64)
+    this.glitchPass = new GlitchPass(32)
 
     this.renderPass = new RenderPass(this.scene, this.camera)
 
@@ -125,18 +129,21 @@ export default {
     this.searchImage.src = SMAAEffect.searchImageDataURL
     this.smaaEffect = new SMAAEffect(this.searchImage, this.areaImage, 1)
 
-    this.effectPass = new EffectPass(this.camera, glitchEffect)
-    this.effectPass.renderToScreen = true
+    this.effectPass = new EffectPass(this.camera, this.glitchEffect)
+    this.effectPass.renderToScreen = false
 
     this.composer = new EffectComposer(this.renderer)
 
-    glitchPass.renderToScreen = false
-    glitchPass.goWild = false
+    this.glitchPass.renderToScreen = false
+    this.glitchPass.goWild = true
+    this.glitchPass.enabled = false
 
     this.composer.addPass(this.renderPass)
 
+    this.composer.addPass(this.glitchPass)
+
     // this.composer.addPass(this.effectPass)
-    this.composer.addPass(glitchPass)
+    // this.composer.addPass(glitchPass)
     // this.composer.addPass(eff)
 
     this.onResize()
@@ -144,6 +151,8 @@ export default {
 
     this.windowHalf = new Vector2(window.innerWidth / 2, window.innerHeight / 2)
     this.target = new Vector2()
+
+    this.addParticles()
 
     window.addEventListener('mousemove', this.onMouseMove, false)
   },
@@ -154,19 +163,22 @@ export default {
       // this.cube.rotation.x += 0.01
       if (this.gltf) {
         // this.gltf.rotation.z += 0.01
-        this.camera.lookAt(this.scene.position)
+        // this.camera.lookAt(this.scene.position)
       }
 
-      this.target.x = (1 - this.mouse.x) * -0.04
-      this.target.y = (1 - this.mouse.y) * -0.04
+      this.target.x = (1 - this.mouse.x) * -0.004
+      this.target.y = (1 - this.mouse.y) * -0.004
 
       // this.camera.rotation.x += 0.045 * (this.target.x - this.camera.rotation.x)
       // this.camera.rotation.y += 0.045 * (this.target.y - this.camera.rotation.y)
+
+      this.camera.position.y = -window.pageYOffset
 
       if (this.gltf) {
         this.gltf.rotation.x = this.target.x * 0.045
         this.gltf.rotation.y = this.target.y * 0.045
         this.gltf.position.x = -70
+        console.log(this.gltf.position)
       }
 
       // this.renderer.render(this.scene, this.camera)
@@ -188,6 +200,36 @@ export default {
           this.mouse.y = mouse.y
         },
       })
+    },
+
+    addParticles() {
+      // create the particle variables
+      const particleCount = 1800
+      const particles = new Geometry()
+      const pMaterial = new ParticleBasicMaterial({
+        // eslint-disable-next-line unicorn/number-literal-case
+        color: 0xffffff,
+        size: 20,
+      })
+
+      // now create the individual particles
+      for (let p = 0; p < particleCount; p++) {
+        // create a particle with random
+        // position values, -250 -> 250
+        const pX = 0 // Math.random() * 500 - 250
+        const pY = 0 // Math.random() * 500 - 250
+        const pZ = 0 // Math.random() * 500 - 250
+        const particle = new Vertex(new Vector3(pX, pY, pZ))
+
+        // add it to the geometry
+        particles.vertices.push(particle)
+      }
+
+      // create the particle system
+      const particleSystem = new ParticleSystem(particles, pMaterial)
+
+      // add it to the scene
+      this.scene.add(particleSystem)
     },
 
     addLights() {
@@ -228,10 +270,9 @@ export default {
     },
 
     addControls() {
-      this.controls = new OrbitControls(this.camera, this.$refs.canvas)
-
-      this.controls.dispose()
-      this.controls.update()
+      // this.controls = new OrbitControls(this.camera, this.$refs.canvas)
+      // this.controls.dispose()
+      // this.controls.update()
     },
 
     createGeo() {
@@ -241,8 +282,8 @@ export default {
       // this.circleMat.visible = false
       this.circle = new Mesh(this.circleGeo, this.circleMat)
 
-      this.circle.position.set(0, 0, 1000)
-      this.scene.add(this.circle)
+      this.circle.position.set(0, 0, 0)
+      // this.scene.add(this.circle)
     },
 
     createCube() {
@@ -255,6 +296,15 @@ export default {
       const plane = new Mesh(geometry, material)
       plane.receiveShadow = true
       this.scene.add(plane)
+    },
+
+    enableGlitch() {
+      // this.composer.addPass(this.glitchPass)
+      this.glitchPass.enabled = true
+    },
+
+    disableGlitch() {
+      this.glitchPass.enabled = false
     },
 
     createLoader() {
@@ -285,10 +335,10 @@ export default {
         this.gltf.castShadow = true
         this.gltf.receiveShadow = true
 
-        const bla2 = { x: -0.3, y: 0.1, scale: 50 }
-        const bla = { x: -0.1, y: 0, scale: 80 }
+        const bla = { x: 10.3, y: 0.1, scale: 50 }
+        const bla2 = { x: -0.1, y: 0, scale: 80 }
 
-        TweenMax.from(bla, 6, {
+        TweenMax.to(bla, 6, {
           ...bla2,
           // repeat: -1,
           // yoyo: true,
