@@ -2,7 +2,7 @@
   <div>
     <div class="container">
       <client-only>
-        <Logo />
+        <WebGl />
       </client-only>
     </div>
     <!-- <h1>Gravity</h1> -->
@@ -27,6 +27,7 @@ body {
   width: 100vw;
   height: 100vh;
 }
+
 h1 {
   position: absolute;
   left: 50%;
