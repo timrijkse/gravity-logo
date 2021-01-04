@@ -10,7 +10,13 @@
 </template>
 
 <script>
-export default {}
+import WebGl from '@/components/WebGl'
+
+export default {
+  components: {
+    WebGl,
+  },
+}
 </script>
 
 <style>
