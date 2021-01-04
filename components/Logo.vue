@@ -103,7 +103,7 @@ export default {
       canvas: this.$refs.canvas,
     })
 
-    this.renderer.setPixelRatio(2)
+    // this.renderer.setPixelRatio(2)
 
     // console.log(this.renderer, window)
 
@@ -154,6 +154,13 @@ export default {
 
     this.addParticles()
 
+    setTimeout(() => {
+      this.enableGlitch()
+      setTimeout(() => {
+        this.disableGlitch()
+      }, 300)
+    }, 2000)
+
     window.addEventListener('mousemove', this.onMouseMove, false)
   },
 
@@ -166,19 +173,15 @@ export default {
         // this.camera.lookAt(this.scene.position)
       }
 
-      this.target.x = (1 - this.mouse.x) * -0.004
-      this.target.y = (1 - this.mouse.y) * -0.004
-
-      // this.camera.rotation.x += 0.045 * (this.target.x - this.camera.rotation.x)
-      // this.camera.rotation.y += 0.045 * (this.target.y - this.camera.rotation.y)
+      this.target.x = (1 - this.mouse.x) * -0.002
+      this.target.y = (1 - this.mouse.y) * -0.002
 
       this.camera.position.y = -window.pageYOffset
 
       if (this.gltf) {
-        this.gltf.rotation.x = this.target.x * 0.045
-        this.gltf.rotation.y = this.target.y * 0.045
+        this.gltf.rotation.x = this.target.x * 0.09
+        this.gltf.rotation.y = this.target.y * 0.09
         this.gltf.position.x = -70
-        console.log(this.gltf.position)
       }
 
       // this.renderer.render(this.scene, this.camera)

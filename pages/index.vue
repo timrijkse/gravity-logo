@@ -5,7 +5,7 @@
         <Logo />
       </client-only>
     </div>
-    <h1>Gravity</h1>
+    <!-- <h1>Gravity</h1> -->
   </div>
 </template>
 
