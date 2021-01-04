@@ -1,27 +1,19 @@
 <template>
-  <div class="logo" @mousemove="onMouseMove">
+  <div class="logo">
     <canvas ref="canvas" />
   </div>
 </template>
 
 <script>
 import WebGLApp from './lib/WebGLApp'
-import G from './scene/G'
-
-const PAGES = {
-  HOME: 'HOME',
-  NEWS: 'NEWS',
-}
+import GModel from './scene/GModel'
+import ParaImage from './scene/ParaImage'
+import { addLights } from './scene/lights'
 
 export default {
   data() {
     return {
       webGLApp: null,
-      sceneState: {
-        pages: PAGES,
-        activePage: PAGES.HOME,
-      },
-      canvas: null,
     }
   },
 
@@ -29,38 +21,21 @@ export default {
     // Initialze Three app
     this.webGLApp = new WebGLApp({
       canvas: this.$refs.canvas,
+      postprocessing: true,
     })
 
-    // Pass events to Three app
-    window.addEventListener('resize', this.onResize, false)
-    window.addEventListener('scroll', this.onScroll, false)
-
-    // Initial resize event
-    this.onResize()
-
     // ADD OBJECTS TO THE SCENE
-    this.webGLApp.scene.g = new G({ webGLApp: this.webGLApp })
+    this.webGLApp.scene.gModel = new GModel({ webGLApp: this.webGLApp })
+    this.webGLApp.scene.add(this.webGLApp.scene.gModel)
+
+    this.webGLApp.scene.paraImage = new ParaImage({ webGLApp: this.webGLApp })
+    this.webGLApp.scene.add(this.webGLApp.scene.paraImage)
+
+    addLights(this.webGLApp)
   },
 
   beforeDestroy() {
-    window.removeEventListener('resize', this.onResize, false)
-    window.removeEventListener('scroll', this.onScroll, false)
-  },
-
-  methods: {
-    onResize(e) {
-      const { innerWidth, innerHeight } = window
-      this.webGLApp.resize(innerWidth, innerHeight)
-    },
-
-    onScroll(e) {
-      console.log('onScroll', e.pageYOffset)
-      this.webGLApp.scroll()
-    },
-
-    onMouseMove(e) {
-      this.webGLApp.mousemove(e.clientX, e.clientY)
-    },
+    this.webGLApp.removeListeners()
   },
 }
 </script>
