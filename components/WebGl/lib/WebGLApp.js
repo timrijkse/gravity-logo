@@ -77,6 +77,12 @@ export default class WebGLApp {
     this.camera.position.y = -window.pageYOffset
     this.camera.updateProjectionMatrix()
 
+    this.scene.traverse(obj => {
+      if (typeof obj.render === 'function') {
+        obj.render(this.WebGLApp)
+      }
+    })
+
     if (this.postprocessing) {
       const delta = this.clock.getDelta()
       this.composer.render(delta)

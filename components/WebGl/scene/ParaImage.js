@@ -1,93 +1,47 @@
 import * as THREE from 'three'
-import gsap from 'gsap'
+import vertexShader from "../glsl/vertex.glsl";
+import fragmentShader from "../glsl/fragment.glsl";
+import img from "~/assets/test.jpg";
 
 export default class ParaImage extends THREE.Group {
   constructor({ webGLApp, ...options }) {
     super(options)
 
-    this.webGLApp = webGLApp
-
-    this.gltf = null
-    this.gltfLoader = webGLApp.gltfLoader
-
-    this.material = new THREE.MeshStandardMaterial({ color: 0x030303 })
-    this.material.metalness = 1
-
-    this.animation = null
-
-
     this.position.y = -window.innerHeight
 
-    this.load()
+    this.webGLApp = webGLApp
+    this.delta = 0
+
+    // eslint-disable-next-line unicorn/number-literal-case
+    this.webGLApp.renderer.setClearColor(0xffffff, 1);
+
+    this.geometry = new THREE.PlaneGeometry(303, 403, 30, 13);
+
+    console.log(fragmentShader)
+
+    this.material = new THREE.ShaderMaterial({
+      vertexShader,
+      fragmentShader,
+      uniforms: {
+        uTime: { value: 0.0 },
+        uTexture: { value: new THREE.TextureLoader().load(img) }
+      },
+      // wireframe: true,
+    });
+
+    this.mesh = new THREE.Mesh(this.geometry, this.material);
+    this.mesh.position.x = 0
+    this.mesh.position.y = 0
+    this.mesh.rotation.x = 0
+
+    this.add(this.mesh);
   }
 
-  load = () => {
-    this.gltfLoader.load('./logo-test4.glb', (gltf) => {
-      this.gltf = gltf.scene
+  render = () => {
+    this.delta += 0.1;
 
-      this.gltf.scale.x = 80
-      this.gltf.scale.y = 80
-      this.gltf.scale.z = 80
-
-      this.setMaterial()
-
-      this.add(this.gltf)
-
-      this.animate()
-    })
-  }
-
-  setMaterial = () => {
-    this.gltf.traverse((o) => {
-      if (o.isMesh) o.material = this.material
-    })
-
-    this.gltf.castShadow = true
-    this.gltf.receiveShadow = true
-  }
-
-  animate = () => {
-    const tweenObj = {
-      rotationX: 0.3,
-      rotationY: 0.1,
-      scale: 50
-    }
-
-    const onUpdate = (e) => {
-      this.gltf.scale.x = tweenObj.scale
-      this.gltf.scale.y = tweenObj.scale
-      this.gltf.scale.z = tweenObj.scale
-
-      this.gltf.rotation.x = tweenObj.rotationX
-      this.gltf.rotation.y = tweenObj.rotationY
-    }
-
-    const to = {
-      rotationX: -0.1,
-      rotationY: 0,
-      scale: 80,
-      onUpdate
-    }
-
-    this.animation = gsap.to(tweenObj, 6, to)
-  }
-
-  resize = () => {
-    console.log('resize tha G12e12e12')
-  }
-
-  mousemove = () => {
-    const target = {}
-
-    target.x = (1 - this.webGLApp.mouseVector.x) * -0.002
-    target.y = (1 - this.webGLApp.mouseVector.y) * -0.002
-
-    // this.camera.position.y = -window.pageYOffset
-
-    if (this.gltf) {
-      this.gltf.rotation.x = target.x * 0.4
-      this.gltf.rotation.y = target.y * 0.4
-      this.gltf.position.x = -70
-    }
+    // Update uniform from Mesh itself
+    // this.mesh.material.uniforms.uTime.value = this.delta;
+    this.material.uniforms.uTime.value = this.webGLApp.clock.getDelta();
   }
 }

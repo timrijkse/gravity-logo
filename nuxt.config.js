@@ -45,6 +45,12 @@ export default {
     ],
     vendor: [
       "three"
-    ]
+    ],
+    extend(config, ctx) {
+      config.module.rules.push({
+        test: /\.glsl$/,
+        loader: 'webpack-glsl-loader'
+      })
+    }
   }
 }

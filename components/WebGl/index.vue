@@ -29,6 +29,7 @@ export default {
     this.webGLApp.scene.add(this.webGLApp.scene.gModel)
 
     this.webGLApp.scene.paraImage = new ParaImage({ webGLApp: this.webGLApp })
+    console.log(this.webGLApp.scene.paraImage)
     this.webGLApp.scene.add(this.webGLApp.scene.paraImage)
 
     addLights(this.webGLApp)

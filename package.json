@@ -15,7 +15,8 @@
     "gsap": "^3.5.1",
     "nuxt": "^2.14.6",
     "postprocessing": "^6.18.0",
-    "touches": "^1.2.2"
+    "touches": "^1.2.2",
+    "webpack-glsl-loader": "^1.0.1"
   },
   "devDependencies": {
     "@nuxtjs/eslint-config": "^3.1.0",
