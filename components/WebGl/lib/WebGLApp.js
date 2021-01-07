@@ -111,6 +111,8 @@ export default class WebGLApp {
     const height = window.innerHeight
     const pixelRatio = window.devicePixelRatio
 
+    this.camera.updateMatrixWorld();
+
     // Set Renderer size
     this.renderer.setSize(width, height)
 

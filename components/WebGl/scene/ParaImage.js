@@ -10,38 +10,34 @@ export default class ParaImage extends THREE.Group {
     this.position.y = -window.innerHeight
 
     this.webGLApp = webGLApp
-    this.delta = 0
-
-    // eslint-disable-next-line unicorn/number-literal-case
-    this.webGLApp.renderer.setClearColor(0xffffff, 1);
+    this.clock = new THREE.Clock();
 
     this.geometry = new THREE.PlaneGeometry(303, 403, 30, 13);
+    this.geometry.verticesNeedUpdate = true;
 
-    console.log(fragmentShader)
+    this.uniforms = {
+      uTime: { type: 'number', value: 0.0 },
+      uTexture: { value: new THREE.TextureLoader().load(img) }
+    }
 
     this.material = new THREE.ShaderMaterial({
       vertexShader,
       fragmentShader,
-      uniforms: {
-        uTime: { value: 0.0 },
-        uTexture: { value: new THREE.TextureLoader().load(img) }
-      },
-      // wireframe: true,
+      uniforms: this.uniforms,
+      wireframe: false,
     });
 
     this.mesh = new THREE.Mesh(this.geometry, this.material);
     this.mesh.position.x = 0
     this.mesh.position.y = 0
-    this.mesh.rotation.x = 0
+    this.mesh.rotation.y = 0
 
     this.add(this.mesh);
   }
 
   render = () => {
-    this.delta += 0.1;
-
     // Update uniform from Mesh itself
     // this.mesh.material.uniforms.uTime.value = this.delta;
-    this.material.uniforms.uTime.value = this.webGLApp.clock.getDelta();
+    this.uniforms.uTime.value = this.clock.getElapsedTime();
   }
 }

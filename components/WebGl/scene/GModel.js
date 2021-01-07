@@ -19,7 +19,7 @@ export default class GModel extends THREE.Group {
   }
 
   load = () => {
-    this.gltfLoader.load('https://5fd22b892c41540007d1b929--wonderful-fermi-90ef2a.netlify.app/models/XI/models/airJordanBlack_lookdev_painter_01.gltf', (gltf) => {
+    this.gltfLoader.load('./logo-test4.glb', (gltf) => {
       this.gltf = gltf.scene
 
       this.gltf.scale.x = 80
