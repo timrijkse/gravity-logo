@@ -39,5 +39,8 @@ export function addLights(webGLApp) {
   light5.castShadow = true
   webGLApp.scene.add(light5)
 
+  const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.9);
+  webGLApp.scene.add(ambientLight)
+
   console.log('addLights', webGLApp)
 }

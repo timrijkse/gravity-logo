@@ -2,11 +2,12 @@ import * as THREE from 'three'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import { SMAAEffect } from 'postprocessing'
 import createTouches from 'touches'
 
 export default class WebGLApp {
   constructor({ background = '#FF0000', canvas, postprocessing = true, ...options } = {}) {
+    this.postprocessing = postprocessing
+
     // Create renderer
     this.renderer = new THREE.WebGLRenderer({
       antialias: true,
@@ -51,16 +52,15 @@ export default class WebGLApp {
       // Create composer for postprocessing
       this.composer = new EffectComposer(this.renderer)
 
-      // Anti aliasing
-      this.areaImage = new Image()
-      this.areaImage.src = SMAAEffect.areaImageDataURL
-      this.searchImage = new Image()
-      this.searchImage.src = SMAAEffect.searchImageDataURL
-      this.smaaEffect = new SMAAEffect(this.searchImage, this.areaImage, 1)
-
       //  Create render pass
       this.renderPass = new RenderPass(this.scene, this.camera)
+
+      // Add passes
       this.composer.addPass(this.renderPass)
+
+      this.postprocessing.passes.forEach((pass) => {
+        this.composer.addPass(pass)
+      })
     }
 
     // Start renderer
@@ -115,6 +115,7 @@ export default class WebGLApp {
 
     // Set Renderer size
     this.renderer.setSize(width, height)
+    this.composer.setSize(width * pixelRatio, height * pixelRatio);
 
     // recursively tell all child objects to resize
     this.scene.traverse(obj => {

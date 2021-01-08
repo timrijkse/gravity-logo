@@ -38,6 +38,6 @@ export default class ParaImage extends THREE.Group {
   render = () => {
     // Update uniform from Mesh itself
     // this.mesh.material.uniforms.uTime.value = this.delta;
-    this.uniforms.uTime.value = this.clock.getElapsedTime();
+    this.uniforms.uTime.value = this.clock.getElapsedTime()
   }
 }

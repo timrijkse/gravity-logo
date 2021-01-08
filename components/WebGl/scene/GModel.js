@@ -13,6 +13,8 @@ export default class GModel extends THREE.Group {
     this.material = new THREE.MeshStandardMaterial({ color: 0x030303 })
     this.material.metalness = 1
 
+    this.target = { x: 0, y: 0 }
+
     this.animation = null
 
     this.load()
@@ -74,16 +76,21 @@ export default class GModel extends THREE.Group {
   }
 
   mousemove = () => {
-    const target = {}
 
-    target.x = (1 - this.webGLApp.mouseVector.x) * -0.002
-    target.y = (1 - this.webGLApp.mouseVector.y) * -0.002
-
-    // this.camera.position.y = -window.pageYOffset
+    gsap.to(this.target, 1, {
+      x: (1 - this.webGLApp.mouseVector.x) * -0.002,
+      y: (1 - this.webGLApp.mouseVector.y) * -0.002
+    })
 
     if (this.gltf) {
-      this.gltf.rotation.x = target.x * 0.09
-      this.gltf.rotation.y = target.y * 0.09
+      gsap.to(this.gltf.rotation, 1, {
+        x: this.target.x * 0.09,
+        y: this.target.y * 0.09
+      })
+
+      // this.camera.position.y = -window.pageYOffset
+
+
       this.gltf.position.x = -70
     }
   }

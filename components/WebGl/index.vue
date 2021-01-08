@@ -9,6 +9,7 @@ import WebGLApp from './lib/WebGLApp'
 import GModel from './scene/GModel'
 import ParaImage from './scene/ParaImage'
 import { addLights } from './scene/lights'
+import { addPostProcessing } from './scene/postprocessing'
 
 export default {
   data() {
@@ -21,7 +22,7 @@ export default {
     // Initialze Three app
     this.webGLApp = new WebGLApp({
       canvas: this.$refs.canvas,
-      postprocessing: true,
+      postprocessing: addPostProcessing(),
     })
 
     // ADD OBJECTS TO THE SCENE
@@ -29,10 +30,10 @@ export default {
     this.webGLApp.scene.add(this.webGLApp.scene.gModel)
 
     this.webGLApp.scene.paraImage = new ParaImage({ webGLApp: this.webGLApp })
-    console.log(this.webGLApp.scene.paraImage)
     this.webGLApp.scene.add(this.webGLApp.scene.paraImage)
 
     addLights(this.webGLApp)
+    // addPostProcessing(this.webGLApp)
   },
 
   beforeDestroy() {
