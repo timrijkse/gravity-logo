@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+// import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import createTouches from 'touches'
 
 export default class WebGLApp {
@@ -66,6 +67,9 @@ export default class WebGLApp {
     // Start renderer
     this.render()
 
+    // const controls = new OrbitControls(this.camera, this.renderer.domElement);
+    // console.log(controls)
+
     // Add listeners
     this.addListeners()
   }
@@ -74,6 +78,7 @@ export default class WebGLApp {
     requestAnimationFrame(this.render)
 
     // Sync camera with users scroll position
+    this.camera.aspect = window.innerWidth / window.innerHeight
     this.camera.position.y = -window.pageYOffset
     this.camera.updateProjectionMatrix()
 
@@ -112,6 +117,7 @@ export default class WebGLApp {
     const pixelRatio = window.devicePixelRatio
 
     this.camera.updateMatrixWorld();
+    this.camera.updateProjectionMatrix();
 
     // Set Renderer size
     this.renderer.setSize(width, height)

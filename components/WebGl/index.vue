@@ -25,6 +25,10 @@ export default {
       postprocessing: addPostProcessing(),
     })
 
+    // Renderer background
+    // eslint-disable-next-line unicorn/number-literal-case
+    this.webGLApp.renderer.setClearColor(0x080808, 1)
+
     // ADD OBJECTS TO THE SCENE
     this.webGLApp.scene.gModel = new GModel({ webGLApp: this.webGLApp })
     this.webGLApp.scene.add(this.webGLApp.scene.gModel)

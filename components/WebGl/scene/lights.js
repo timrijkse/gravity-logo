@@ -9,37 +9,37 @@ export function addLights(webGLApp) {
   webGLApp.scene.add(hlLight)
 
   // eslint-disable-next-line unicorn/number-literal-case
-  const directionalLight = new THREE.DirectionalLight(0x040404, 100)
-  directionalLight.position.set(0, 1, 0)
+  const directionalLight = new THREE.DirectionalLight(0x040404, 0.5)
+  directionalLight.position.set(0, 1, -500)
   directionalLight.castShadow = true
   webGLApp.scene.add(directionalLight)
 
   // eslint-disable-next-line unicorn/number-literal-case
-  const light = new THREE.PointLight(0xffffff, 15)
-  light.position.set(0, 300, 500)
+  const light = new THREE.PointLight(0x303030, 15)
+  light.position.set(190, 300, -1000)
   webGLApp.scene.add(light)
 
   // eslint-disable-next-line unicorn/number-literal-case
-  const light2 = new THREE.PointLight(0xffffff, 15)
-  light2.position.set(500, 100, 0)
+  const light2 = new THREE.PointLight(0x303030, 15)
+  light2.position.set(100, 300, -1000)
   webGLApp.scene.add(light2)
 
   // eslint-disable-next-line unicorn/number-literal-case
-  const light3 = new THREE.PointLight(0xffffff, 5)
-  light3.position.set(0, 100, -500)
+  const light3 = new THREE.PointLight(0x303030, 500)
+  light3.position.set(0, 300, 100)
   webGLApp.scene.add(light3)
 
   // eslint-disable-next-line unicorn/number-literal-case
-  const light4 = new THREE.PointLight(0xffffff, 20)
-  light4.position.set(-500, 300, 500)
+  const light4 = new THREE.PointLight(0x303030, 20)
+  light4.position.set(0, 1500, 500)
   webGLApp.scene.add(light4)
 
   // eslint-disable-next-line unicorn/number-literal-case
-  const light5 = new THREE.HemisphereLight(0xffffff, 0xffffff, 0)
+  const light5 = new THREE.HemisphereLight(0x303030, 0x303030, 0)
   light5.castShadow = true
   webGLApp.scene.add(light5)
 
-  const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.9);
+  const ambientLight = new THREE.AmbientLight(0x303030, 0.9);
   webGLApp.scene.add(ambientLight)
 
   console.log('addLights', webGLApp)

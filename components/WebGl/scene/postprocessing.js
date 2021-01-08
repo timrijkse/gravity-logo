@@ -3,13 +3,17 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass'
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass'
 import { CopyShader } from 'three/examples/jsm/shaders/CopyShader'
 import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader'
+import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass'
+import { VignetteShader } from 'three/examples/jsm/shaders/VignetteShader.js';
 
 export const addPostProcessing = () => {
   return {
     passes: [
       createFXAA(),
+      createFilm(),
       createBloom(),
-      createCopyShader()
+      createCopyShader(),
+      createVignette(),
     ]
   }
 }
@@ -34,9 +38,9 @@ export const createCopyShader = () => {
 
 export const createBloom = () => {
   const bloom = {
-    bloomStrength: 2.5,
-    bloomThreshold: 0.1,
-    bloomRadius: 0.1
+    bloomStrength: 0.5,
+    bloomThreshold: 0.01,
+    bloomRadius: 0.01
   };
 
   const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), bloom.bloomStrength, bloom.bloomRadius, bloom.bloomThreshold);
@@ -46,4 +50,18 @@ export const createBloom = () => {
   bloomPass.radius = bloom.bloomRadius;
 
   return bloomPass
+}
+
+export const createVignette = () => {
+  const effectVignette = new ShaderPass(VignetteShader);
+  effectVignette.uniforms.offset.value = 0.125;
+  effectVignette.uniforms.darkness.value = 30;
+  return effectVignette
+}
+
+export const createFilm = () => {
+  const effectFilm = new FilmPass(12, 0, 256, false)
+  effectFilm.renderToScreen = true
+
+  return effectFilm
 }

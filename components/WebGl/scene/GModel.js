@@ -10,8 +10,21 @@ export default class GModel extends THREE.Group {
     this.gltf = null
     this.gltfLoader = webGLApp.gltfLoader
 
-    this.material = new THREE.MeshStandardMaterial({ color: 0x030303 })
-    this.material.metalness = 1
+    this.material = new THREE.MeshStandardMaterial({
+      // eslint-disable-next-line unicorn/number-literal-case
+      color: 0x010101,
+      roughness: 0.5
+    });
+
+    const envMap = new THREE.TextureLoader().load();
+    envMap.mapping = THREE.SphericalReflectionMapping;
+    this.material.envMap = envMap;
+
+    const roughnessMap = new THREE.TextureLoader().load();
+    roughnessMap.magFilter = THREE.NearestFilter;
+    this.material.roughnessMap = roughnessMap;
+
+    this.material.metalness = 0
 
     this.target = { x: 0, y: 0 }
 
@@ -46,10 +59,12 @@ export default class GModel extends THREE.Group {
   }
 
   animate = () => {
+    this.isIntro = true
+
     const tweenObj = {
-      rotationX: 0.3,
-      rotationY: 0.1,
-      scale: 50
+      rotationX: -0.25,
+      rotationY: -0.5,
+      scale: 300
     }
 
     const onUpdate = (e) => {
@@ -57,6 +72,7 @@ export default class GModel extends THREE.Group {
       this.gltf.scale.y = tweenObj.scale
       this.gltf.scale.z = tweenObj.scale
 
+      this.gltf.position.x = -70
       this.gltf.rotation.x = tweenObj.rotationX
       this.gltf.rotation.y = tweenObj.rotationY
     }
@@ -65,10 +81,33 @@ export default class GModel extends THREE.Group {
       rotationX: -0.1,
       rotationY: 0,
       scale: 80,
+      ease: 'power4.out',
       onUpdate
     }
 
-    this.animation = gsap.to(tweenObj, 6, to)
+    this.animation = gsap.to(tweenObj, 3, to)
+
+    const initial = new THREE.Color(this.material.color.getHex());
+    gsap.to(initial, 3, {
+      r: 0.006,
+      g: 0.006,
+      b: 0.006,
+      ease: 'power4.out',
+      onUpdate: () => {
+        this.material.color = initial;
+      },
+      onComplete: () => {
+        this.isIntro = false
+      }
+    });
+
+    // gsap.fromTo(this.material, 1, {
+    //   // eslint-disable-next-line unicorn/number-literal-case
+    //   color: 0xffffff
+    // }, {
+    //   // eslint-disable-next-line unicorn/number-literal-case
+    //   color: 0x101010
+    // })
   }
 
   resize = () => {
@@ -76,20 +115,31 @@ export default class GModel extends THREE.Group {
   }
 
   mousemove = () => {
+    if (this.isIntro) {
+      // return
+    }
+
+    const maxRotation = 0.15
+
+    const halfWidth = window.innerWidth / 2
+    const halfHeight = window.innerHeight / 2
+
+    const { x, y } = this.webGLApp.mouseVector
+
+    const factorX = (((y + halfHeight) / window.innerHeight * 100) - 100) * 2
+    const factorY = (((x + halfWidth) / window.innerWidth * 100) - 100) * 2
 
     gsap.to(this.target, 1, {
-      x: (1 - this.webGLApp.mouseVector.x) * -0.002,
-      y: (1 - this.webGLApp.mouseVector.y) * -0.002
+      x: maxRotation / 100 * factorX,
+      y: maxRotation / 100 * factorY,
+      ease: 'power4.out',
     })
 
     if (this.gltf) {
-      gsap.to(this.gltf.rotation, 1, {
-        x: this.target.x * 0.09,
-        y: this.target.y * 0.09
+      gsap.to(this.gltf.rotation, 0.5, {
+        x: this.target.x,
+        y: this.target.y
       })
-
-      // this.camera.position.y = -window.pageYOffset
-
 
       this.gltf.position.x = -70
     }
