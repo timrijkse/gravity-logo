@@ -6,7 +6,8 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import createTouches from 'touches'
 
 export default class WebGLApp {
-  constructor({ background = '#FF0000', canvas, postprocessing = true, ...options } = {}) {
+  constructor({ canvas, postprocessing = true, ...options } = {}) {
+    this.options = options
     this.postprocessing = postprocessing
 
     // Create renderer
@@ -101,7 +102,6 @@ export default class WebGLApp {
     window.addEventListener('scroll', this.scroll, false)
     window.addEventListener('mousemove', this.mousemove, false)
 
-
     this.resize()
   }
 
@@ -136,7 +136,11 @@ export default class WebGLApp {
   }
 
   scroll = () => {
-    console.log('scroll')
+    this.scene.traverse(obj => {
+      if (typeof obj.scroll === 'function') {
+        obj.scroll(this.WebGLApp)
+      }
+    })
   }
 
   mousemove = (e) => {

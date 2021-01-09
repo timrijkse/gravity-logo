@@ -80,7 +80,6 @@ export default {
 
   mounted() {
     this.scene = new Scene()
-    // eslint-disable-next-line unicorn/number-literal-case
     // const textureLoader = new TextureLoader()
     // this.scene.background = textureLoader.load('./bg.png')
 
@@ -210,7 +209,6 @@ export default {
       const particleCount = 1800
       const particles = new Geometry()
       const pMaterial = new ParticleBasicMaterial({
-        // eslint-disable-next-line unicorn/number-literal-case
         color: 0xffffff,
         size: 20,
       })
@@ -236,37 +234,30 @@ export default {
     },
 
     addLights() {
-      // eslint-disable-next-line unicorn/number-literal-case
       const hlLight = new AmbientLight(0x040404, 100)
       this.scene.add(hlLight)
 
-      // eslint-disable-next-line unicorn/number-literal-case
       const directionalLight = new DirectionalLight(0x040404, 100)
       directionalLight.position.set(0, 1, 0)
       directionalLight.castShadow = true
       this.scene.add(directionalLight)
 
-      // eslint-disable-next-line unicorn/number-literal-case
       this.light = new PointLight(0xffffff, 15)
       this.light.position.set(0, 300, 500)
       this.scene.add(this.light)
 
-      // eslint-disable-next-line unicorn/number-literal-case
       this.light2 = new PointLight(0xffffff, 15)
       this.light2.position.set(500, 100, 0)
       this.scene.add(this.light2)
 
-      // eslint-disable-next-line unicorn/number-literal-case
       this.light3 = new PointLight(0xffffff, 5)
       this.light3.position.set(0, 100, -500)
       this.scene.add(this.light3)
 
-      // eslint-disable-next-line unicorn/number-literal-case
       this.light4 = new PointLight(0xffffff, 20)
       this.light4.position.set(-500, 300, 500)
       this.scene.add(this.light4)
 
-      // eslint-disable-next-line unicorn/number-literal-case
       this.light5 = new HemisphereLight(0xffffff, 0xffffff, 0)
       this.light5.castShadow = true
       this.scene.add(this.light5)
@@ -280,7 +271,6 @@ export default {
 
     createGeo() {
       this.circleGeo = new CircleGeometry(100, 100)
-      // eslint-disable-next-line unicorn/number-literal-case
       this.circleMat = new MeshBasicMaterial({ color: 0xff0000 })
       // this.circleMat.visible = false
       this.circle = new Mesh(this.circleGeo, this.circleMat)
@@ -292,7 +282,6 @@ export default {
     createCube() {
       const geometry = new PlaneGeometry(500, 500, 0)
       const material = new MeshBasicMaterial({
-        // eslint-disable-next-line unicorn/number-literal-case
         color: 0xffff00,
         side: DoubleSide,
       })
@@ -327,7 +316,6 @@ export default {
         // this.gltf.position.y = 0
         // this.gltf.position.z = 1
 
-        // eslint-disable-next-line unicorn/number-literal-case
         const newMaterial = new MeshStandardMaterial({ color: 0x030303 })
         newMaterial.metalness = 1
 

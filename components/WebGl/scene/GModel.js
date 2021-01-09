@@ -11,18 +11,9 @@ export default class GModel extends THREE.Group {
     this.gltfLoader = webGLApp.gltfLoader
 
     this.material = new THREE.MeshStandardMaterial({
-      // eslint-disable-next-line unicorn/number-literal-case
       color: 0x010101,
       roughness: 0.5
     });
-
-    const envMap = new THREE.TextureLoader().load();
-    envMap.mapping = THREE.SphericalReflectionMapping;
-    this.material.envMap = envMap;
-
-    const roughnessMap = new THREE.TextureLoader().load();
-    roughnessMap.magFilter = THREE.NearestFilter;
-    this.material.roughnessMap = roughnessMap;
 
     this.material.metalness = 0
 
@@ -36,10 +27,12 @@ export default class GModel extends THREE.Group {
   load = () => {
     this.gltfLoader.load('./logo-test4.glb', (gltf) => {
       this.gltf = gltf.scene
+      this.gltf.castShadow = true
 
-      this.gltf.scale.x = 80
-      this.gltf.scale.y = 80
-      this.gltf.scale.z = 80
+      this.gltf.scale.x = 50
+      this.gltf.scale.y = 50
+      this.gltf.scale.z = 50
+      this.gltf.position.z = 300
 
       this.setMaterial()
 
@@ -51,11 +44,11 @@ export default class GModel extends THREE.Group {
 
   setMaterial = () => {
     this.gltf.traverse((o) => {
-      if (o.isMesh) o.material = this.material
+      if (o.isMesh) {
+        o.material = this.material
+        o.castShadow = true
+      }
     })
-
-    this.gltf.castShadow = true
-    this.gltf.receiveShadow = true
   }
 
   animate = () => {
@@ -67,7 +60,7 @@ export default class GModel extends THREE.Group {
       scale: 300
     }
 
-    const onUpdate = (e) => {
+    const onUpdate = () => {
       this.gltf.scale.x = tweenObj.scale
       this.gltf.scale.y = tweenObj.scale
       this.gltf.scale.z = tweenObj.scale
@@ -80,7 +73,7 @@ export default class GModel extends THREE.Group {
     const to = {
       rotationX: -0.1,
       rotationY: 0,
-      scale: 80,
+      scale: 50,
       ease: 'power4.out',
       onUpdate
     }
@@ -102,21 +95,20 @@ export default class GModel extends THREE.Group {
     });
 
     // gsap.fromTo(this.material, 1, {
-    //   // eslint-disable-next-line unicorn/number-literal-case
     //   color: 0xffffff
     // }, {
-    //   // eslint-disable-next-line unicorn/number-literal-case
     //   color: 0x101010
     // })
   }
 
-  resize = () => {
-    console.log('resize tha G')
+  scroll = () => {
+    // Fixed position
+    // this.gltf.position.y = -window.pageYOffset
   }
 
   mousemove = () => {
     if (this.isIntro) {
-      // return
+      return
     }
 
     const maxRotation = 0.15

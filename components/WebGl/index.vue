@@ -8,6 +8,7 @@
 import WebGLApp from './lib/WebGLApp'
 import GModel from './scene/GModel'
 import ParaImage from './scene/ParaImage'
+import Plane from './scene/Plane'
 import { addLights } from './scene/lights'
 import { addPostProcessing } from './scene/postprocessing'
 
@@ -26,7 +27,6 @@ export default {
     })
 
     // Renderer background
-    // eslint-disable-next-line unicorn/number-literal-case
     this.webGLApp.renderer.setClearColor(0x080808, 1)
 
     // ADD OBJECTS TO THE SCENE
@@ -34,10 +34,12 @@ export default {
     this.webGLApp.scene.add(this.webGLApp.scene.gModel)
 
     this.webGLApp.scene.paraImage = new ParaImage({ webGLApp: this.webGLApp })
-    this.webGLApp.scene.add(this.webGLApp.scene.paraImage)
+    // this.webGLApp.scene.add(this.webGLApp.scene.paraImage)
+
+    this.webGLApp.scene.plane = new Plane({ webGLApp: this.webGLApp })
+    // this.webGLApp.scene.add(this.webGLApp.scene.plane)
 
     addLights(this.webGLApp)
-    // addPostProcessing(this.webGLApp)
   },
 
   beforeDestroy() {
