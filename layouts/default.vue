@@ -1,20 +1,36 @@
 <template>
   <div>
     <client-only>
-      <WebGl />
+      <WebGl :scroll-position="scrollPosition" />
     </client-only>
-    <div class="page-container">
-      <Nuxt />
-    </div>
+    <SmoothScroll @scroll="onScroll">
+      <div class="page-container">
+        <Nuxt />
+      </div>
+    </SmoothScroll>
   </div>
 </template>
 
 <script>
 import WebGl from '@/components/WebGl'
+import SmoothScroll from '@/components/WebGl/SmoothScroll'
 
 export default {
   components: {
     WebGl,
+    SmoothScroll,
+  },
+
+  data() {
+    return {
+      scrollPosition: 0,
+    }
+  },
+
+  methods: {
+    onScroll(scrollPosition) {
+      this.scrollPosition = scrollPosition
+    },
   },
 }
 </script>
@@ -34,10 +50,6 @@ html {
   box-sizing: border-box;
 }
 
-body {
-  min-height: 10000px;
-}
-
 *,
 *::before,
 *::after {
@@ -48,6 +60,7 @@ body {
 .page-container {
   position: relative;
   width: 100%;
+  min-height: 10000px;
   z-index: 2;
 }
 </style>

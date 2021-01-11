@@ -5,6 +5,6 @@
 <style scoped>
 .splash {
   width: 100%;
-  height: 100vh;
+  height: 50vh;
 }
 </style>

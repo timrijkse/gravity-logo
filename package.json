@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
+    "gl": "^4.9.0",
     "gsap": "^3.5.1",
     "nuxt": "^2.14.6",
     "postprocessing": "^6.18.0",

@@ -9,6 +9,7 @@ export default class WebGLApp {
   constructor({ canvas, postprocessing = true, ...options } = {}) {
     this.options = options
     this.postprocessing = postprocessing
+    this.scrollPosition = 0
 
     // Create renderer
     this.renderer = new THREE.WebGLRenderer({
@@ -80,7 +81,7 @@ export default class WebGLApp {
 
     // Sync camera with users scroll position
     this.camera.aspect = window.innerWidth / window.innerHeight
-    this.camera.position.y = -window.pageYOffset
+    this.camera.position.y = this.scrollPosition
     this.camera.updateProjectionMatrix()
 
     this.scene.traverse(obj => {
@@ -99,7 +100,7 @@ export default class WebGLApp {
 
   addListeners = () => {
     window.addEventListener('resize', this.resize, false)
-    window.addEventListener('scroll', this.scroll, false)
+    // window.addEventListener('scroll', this.scroll, false)
     window.addEventListener('mousemove', this.mousemove, false)
 
     this.resize()
@@ -107,7 +108,7 @@ export default class WebGLApp {
 
   removeListeners = () => {
     window.removeEventListener('resize', this.resize, false)
-    window.removeEventListener('scroll', this.scroll, false)
+    // window.removeEventListener('scroll', this.scroll, false)
     window.removeEventListener('mousemove', this.mousemove, false)
   }
 
@@ -135,10 +136,12 @@ export default class WebGLApp {
     })
   }
 
-  scroll = () => {
+  scroll = (scrollPosition) => {
+    this.scrollPosition = scrollPosition
+
     this.scene.traverse(obj => {
       if (typeof obj.scroll === 'function') {
-        obj.scroll(this.WebGLApp)
+        obj.scroll(this.WebGLApp, scrollPosition)
       }
     })
   }
@@ -148,7 +151,7 @@ export default class WebGLApp {
 
     this.scene.traverse(obj => {
       if (typeof obj.mousemove === 'function') {
-        obj.mousemove()
+        obj.mousemove(e)
       }
     })
   }
